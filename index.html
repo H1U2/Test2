@@ -1,59 +1,99 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>输入日期显示星期几</title>
-	<style>
-		/* 页面样式 */
-		body {
-			font-family: Arial, Helvetica, sans-serif;
-		}
-		h1 {
-			text-align: center;
-		}
-		form {
-			text-align: center;
-		}
-		input[type="text"] {
-			padding: 10px;
-			margin: 10px;
-			border-radius: 5px;
-			border: none;
-			box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-		}
-		input[type="submit"] {
-			padding: 10px;
-			border-radius: 5px;
-			border: none;
-			background-color: #0099ff;
-			color: #fff;
-			font-weight: bold;
-			box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-		}
-	</style>
-</head>
-<body>
-	<h1>输入日期显示星期几</h1>
-	<form onsubmit="return false;">
-		<input type="text" id="year" name="year" placeholder="年份（如：2023）">
-		<input type="text" id="month" name="month" placeholder="月份（如：3）">
-		<input type="text" id="day" name="day" placeholder="日期（如：27）">
-		<input type="submit" value="计算" onclick="getWeekday()">
-	</form>
-	<p id="result"></p>
-
-	<script>
-		function getWeekday() {
-			// 获取用户输入的年月日
-			var inputYear = document.getElementById("year").value;
-			var inputMonth = document.getElementById("month").value;
-			var inputDay = document.getElementById("day").value;
-			// 将字符串转换为日期对象
-			var dateObj = new Date(inputYear, inputMonth - 1, inputDay);
-			// 获取星期几
-			var weekday = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][dateObj.getDay()];
-			// 显示结果
-			document.getElementById("result").innerHTML = "输入日期为：" + inputYear + "年" + inputMonth + "月" + inputDay + "日<br>星期几是：" + weekday;
-		}
-	</script>
-</body>
+  <head>
+    <meta charset="UTF-8">
+    <title>航空服务查询</title>
+  </head>
+  <body>
+    <h1>航空服务查询</h1>
+    <form>
+      <p>
+        <label for="route">航线：</label>
+        <select id="route" name="route" required>
+          <option value="">请选择</option>
+          <option value="domestic">中国国内</option>
+          <option value="foreign">中国国际</option>
+        </select>
+      </p>
+      <p>
+        <label for="seat-type">仓位：</label>
+        <select id="seat-type" name="seat_type" required>
+          <option value="">请选择</option>
+          <option value="economy">经济舱</option>
+          <option value="business">商务舱</option>
+        </select>
+      </p>
+      <p>
+        <label for="flight-time">飞行时间：</label>
+        <input type="number" id="flight-time" name="flight_time" required>
+      </p>
+      <p>
+        <button type="submit">查询</button>
+      </p>
+    </form>
+    <div id="result" style="display: none;">
+      <h2>查询结果</h2>
+      <p id="food-result"></p>
+      <p id="movie-result"></p>
+    </div>
+    <script>
+      // 定义航空公司的服务规定
+      const SERVICE_RULES = {
+        "domestic": {
+          "economy": {
+            "food": {"min_flight_time": 2},
+            "movies": false,
+          },
+          "business": {
+            "food": true,
+            "movies": false,
+          },
+        },
+        "foreign": {
+          "economy": {
+            "food": {"min_flight_time": 0},
+            "movies": true,
+          },
+          "business": {
+            "food": true,
+            "movies": true,
+          },
+        },
+      };
+      
+      // 定义查询函数
+      function queryFlightService() {
+        const route = document.getElementById("route").value;
+        const seatType = document.getElementById("seat-type").value;
+        const flightTime = parseFloat(document.getElementById("flight-time").value);
+        
+        const serviceRule = SERVICE_RULES[route][seatType];
+        
+        let foodResult;
+        if (serviceRule.food === true || (serviceRule.food && flightTime >= serviceRule.food.min_flight_time)) {
+          foodResult = "有食物供应";
+        } else {
+          foodResult = "无食物供应";
+        }
+        
+        let movieResult;
+        if (serviceRule.movies) {
+          movieResult = "可以播放电影";
+        } else {
+          movieResult = "不可以播放电影";
+        }
+        
+        document.getElementById("food-result").textContent = `食物：${foodResult}`;
+        document.getElementById("movie-result").textContent = `电影：${movieResult}`;
+        document.getElementById("result").style.display = "block";
+      }
+      
+      // 监听查询表单的提交事件
+      const form = document.querySelector("form");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        queryFlightService();
+      });
+    </script>
+  </body>
 </html>
