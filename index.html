@@ -1,99 +1,67 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>航空服务查询</title>
-  </head>
-  <body>
-    <h1>航空服务查询</h1>
-    <form>
-      <p>
-        <label for="route">航线：</label>
-        <select id="route" name="route" required>
-          <option value="">请选择</option>
-          <option value="domestic">中国国内</option>
-          <option value="foreign">中国国际</option>
-        </select>
-      </p>
-      <p>
-        <label for="seat-type">仓位：</label>
-        <select id="seat-type" name="seat_type" required>
-          <option value="">请选择</option>
-          <option value="economy">经济舱</option>
-          <option value="business">商务舱</option>
-        </select>
-      </p>
-      <p>
-        <label for="flight-time">飞行时间：</label>
-        <input type="number" id="flight-time" name="flight_time" required>
-      </p>
-      <p>
-        <button type="submit">查询</button>
-      </p>
-    </form>
-    <div id="result" style="display: none;">
-      <h2>查询结果</h2>
-      <p id="food-result"></p>
-      <p id="movie-result"></p>
-    </div>
-    <script>
-      // 定义航空公司的服务规定
-      const SERVICE_RULES = {
-        "domestic": {
-          "economy": {
-            "food": {"min_flight_time": 2},
-            "movies": false,
-          },
-          "business": {
-            "food": true,
-            "movies": false,
-          },
-        },
-        "foreign": {
-          "economy": {
-            "food": {"min_flight_time": 0},
-            "movies": true,
-          },
-          "business": {
-            "food": true,
-            "movies": true,
-          },
-        },
-      };
-      
-      // 定义查询函数
-      function queryFlightService() {
-        const route = document.getElementById("route").value;
-        const seatType = document.getElementById("seat-type").value;
-        const flightTime = parseFloat(document.getElementById("flight-time").value);
-        
-        const serviceRule = SERVICE_RULES[route][seatType];
-        
-        let foodResult;
-        if (serviceRule.food === true || (serviceRule.food && flightTime >= serviceRule.food.min_flight_time)) {
-          foodResult = "有食物供应";
-        } else {
-          foodResult = "无食物供应";
-        }
-        
-        let movieResult;
-        if (serviceRule.movies) {
-          movieResult = "可以播放电影";
-        } else {
-          movieResult = "不可以播放电影";
-        }
-        
-        document.getElementById("food-result").textContent = `食物：${foodResult}`;
-        document.getElementById("movie-result").textContent = `电影：${movieResult}`;
-        document.getElementById("result").style.display = "block";
-      }
-      
-      // 监听查询表单的提交事件
-      const form = document.querySelector("form");
-      form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        queryFlightService();
-      });
-    </script>
-  </body>
+<head>
+	<title>航空服务查询</title>
+</head>
+<body>
+	<h1>航空服务查询</h1>
+	<form>
+		<label for="route">航线：</label>
+		<select name="route" id="route">
+			<option value="china-to-europe">中国到欧洲</option>
+			<option value="china-to-non-europe">中国到非欧洲</option>
+			<option value="china-domestic">中国国内</option>
+		</select>
+		<br><br>
+		<label for="class">仓位：</label>
+		<select name="class" id="class">
+			<option value="economy">经济舱</option>
+			<option value="business">商务舱</option>
+		</select>
+		<br><br>
+		<label for="duration">飞行时间：</label>
+		<input type="number" name="duration" id="duration" min="0" step="0.5">
+		<br><br>
+		<button type="button" onclick="query()">查询</button>
+	</form>
+	<br><br>
+	<div id="result"></div>
+	
+	<script>
+		function query() {
+			// 获取用户输入的值
+			var route = document.getElementById("route").value;
+			var cls = document.getElementById("class").value;
+			var duration = parseFloat(document.getElementById("duration").value);
+			
+			// 查询航空服务
+			var result = "";
+			if (route == "china-to-europe" || route == "china-to-non-europe") {
+				result += "所有座位都有食物供应。";
+				if (cls == "economy" || cls == "business") {
+					result += "每个座位都可以播放电影。";
+				}
+				if (route == "china-to-non-europe" && cls == "economy") {
+					if (duration > 2) {
+						result += "飞行时间大于2小时，有食物供应。";
+					} else {
+						result += "飞行时间小于等于2小时，无食物供应。";
+					}
+				}
+			} else if (route == "china-domestic") {
+				result += "商务舱有食物供应，但不可以播放电影。";
+				if (cls == "economy") {
+					if (duration > 2) {
+						result += "飞行时间大于2小时，有食物供应。";
+					} else {
+						result += "飞行时间小于等于2小时，无食物供应。";
+					}
+				}
+			}
+			
+			// 显示查询结果
+			document.getElementById("result").innerHTML = result;
+		}
+	</script>
+</body>
 </html>
